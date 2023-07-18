@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Student Management System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Welcome, {{ student.username }}!</h1>
+
+        <h2>Academic Progress</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject, marks in student.marks.items() %}
+                    <tr>
+                        <td>{{ subject }}</td>
+                        <td>
+                            {% if is_admin %}
+                                <form action="/update_marks" method="post">
+                                    <input type="hidden" name="username" value="{{ student.username }}">
+                                    <input type="hidden" name="subject" value="{{ subject }}">
+                                    <input type="number" name="marks" value="{{ marks }}" class="form-control" required>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </form>
+                            {% else %}
+                                {{ marks }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Extra-Curricular Activities</h2>
+        <ul class="list-group">
+            {% for activity in student.activities %}
+                <li class="list-group-item">{{ activity }}</li>
+            {% endfor %}
+            {% if is_admin %}
+                <li class="list-group-item">
+                    <form action="/add_activity" method="post">
+                        <input type="hidden" name="username" value="{{ student.username }}">
+                        <input type="text" name="activity" placeholder="New Activity" class="form-control" required>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </li>
+            {% endif %}
+        </ul>
+
+        <h2>Attendance</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for date, status in student.attendance.items() %}
+                    <tr>
+                        <td>{{ date }}</td>
+                        <td>
+                            {% if is_admin %}
+                                <form action="/update_attendance" method="post">
+                                    <input type="hidden" name="username" value="{{ student.username }}">
+                                    <input type="hidden" name="date" value="{{ date }}">
+                                    <select name="status" class="form-control" required>
+                                        <option value="Present" {% if status == "Present" %}selected{% endif %}>Present</option>
+                                        <option value="Absent" {% if status == "Absent" %}selected{% endif %}>Absent</option>
+                                        <option value="Late" {% if status == "Late" %}selected{% endif %}>Late</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </form>
+                            {% else %}
+                                {{ status }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
